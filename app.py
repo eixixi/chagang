@@ -1,23 +1,23 @@
 import sqlite3, os
-从 datetime 导入 datetime、timedelta
-从 pathlib 导入 Path
-从 fastapi 导入 FastAPI、Request、HTTPException
-从 fastapi.middleware.cors 导入 CORSMiddleware
-从 pydantic 导入 BaseModel
-导入 uvicorn
+from datetime import datetime, timedelta
+from pathlib import Path
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+import uvicorn
 
 BASE_DIR = Path(__file__).parent
 DB_PATH = BASE_DIR / "records.db"
 AUTH_TOKEN = os.environ.get("AUTH_TOKEN", "lyy010234xmjim")
 
-定义 初始化数据库():
+def init_db():
     conn = sqlite3.connect(str(DB_PATH))
     conn.execute("""CREATE TABLE IF NOT EXISTS records (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         app_name TEXT NOT NULL,
-        事件 TEXT NOT NULL,
+        event TEXT NOT NULL,
         timestamp TEXT NOT NULL
-    )""")
+        )""")
     conn.commit()
     conn.close()
 
@@ -26,7 +26,7 @@ init_db()
 app = FastAPI(title="查岗系统")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-类 ReportBody(BaseModel):
+class ReportBody(BaseModel):
     app_name: str
     event: str
 
@@ -34,7 +34,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 async def report(body: ReportBody, req: Request):
     auth = req.headers.get("Authorization", "")
     if auth != f"Bearer {AUTH_TOKEN}":
-        raise HTTPException(401, "未授权")
+        raise HTTPException(401, "Unauthorized")
     
     now = datetime.utcnow().isoformat()
     conn = sqlite3.connect(str(DB_PATH))
@@ -68,10 +68,7 @@ async def summary():
             sessions[app_name] = sessions.get(app_name, 0) + gap
             del opens[app_name]
     
-    return {
-        "recent_apps": [r[0] for r in recent],
-        "sessions": sessions
-    }
+    return { "recent_apps": [r[0] for r in recent], "sessions": sessions}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
