@@ -1,7 +1,7 @@
 mport sqlite3, os from datetime import datetime、timedelta from pathlib import Path from fastapi 
-导入 FastAPI、Request、HTTPException 来自 fastapi.middleware.跨域导入 CORSMiddleware 
+从 fastapi 导入 FastAPI、Request 和 HTTPException。中间件。跨域导入 CORSMiddleware 
 从 pydantic 导入 BaseModel，导入 uvicorn
-BASE_DIR = Path(file).parent DB_PATH = BASE_DIR / "records.db" JST = timedelta(hours=9) 
+BASE_DIR = Path(__file__).parent DB_PATH = BASE_DIR / "records.db" JST = timedelta(hours=9) 
 AUTH_TOKEN = os.environ.get("AUTH_TOKEN",“lyy010234xmjim”)
 def init_db(): conn = sqlite3.connect(str(DB_PATH)) conn.execute("""CREATE TABLE IF NOT 
 EXISTS records ( id INTEGER PRIMARY KEY AUTOINCREMENT, app_name TEXT NOT 
@@ -11,10 +11,10 @@ app = FastAPI(title="查岗系统") app.add_middleware(CORSMiddleware, allow_ori
 allow_methods=[""], allow_headers=["*"])
 class ReportBody(BaseModel): app_name: str event: str
 @app.post("/report") async def report(body: ReportBody, req: Request): auth = 
-f"Bearer AUTH_TOKEN}": 抛出 
+f"Bearer AUTH_TOKEN}"：抛出 
  当前时间 = datetime.utcnow().isoformat() 连接 = 
 sqlite3.connect(str(DB_PATH)) conn.execute("INSERT INTO records VALUES (?, ?, ?)", 
-(body.app_name, body.event, now)) conn.commit(); conn.close() return {"status": "ok"}
+(主体。应用名称, 主体。事件, 当前时间)) 连接。提交(); 连接。关闭() 返回 {"状态": "成功"}
 @app.get("/ping") async def ping(): return "pong"
 @app.get("/activity/summary") async def summary(): conn = sqlite3.connect(str(DB_PATH)) cur =
 conn.cursor() cur.execute("SELECT app_name, event, timestamp FROM records ORDER BY id 
