@@ -68,7 +68,10 @@ async def summary():
             sessions[app_name] = sessions.get(app_name, 0) + gap
             del opens[app_name]
     
-     return {"recent_apps": [r[0] for r in recent], "sessions": sessions}
+    return {
+        "recent_apps": [r[0] for r in recent],
+        "sessions": sessions
+    }
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
